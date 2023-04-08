@@ -1,0 +1,23 @@
+<configuration>
+  <include resource="/org/springframework/boot/logging/logback/base.xml"/>
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+      </pattern>
+    </encoder>
+  </appender>
+  <root level="info">
+    <appender-ref ref="STDOUT"/>
+  </root>
+  <logger name="no.brox.clockshop" level="debug"/>
+<!--  <logger name="o.s.b.f.s.DefaultListableBeanFactory" level="error"/>-->
+<!--  <logger name="o.springframework.test.context.cache" level="error"/>-->
+<!--  <logger name="com.zaxxer.hikari.pool.PoolBase" level="error"/>-->
+<!--  <logger name="com.zaxxer.hikari.pool.PoolBase" level="error"/>-->
+<!--  <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter">-->
+<!--    <level value="DEBUG" />-->
+<!--  </logger>-->
+<!--  <logger name="org.springframework.web.filter.ServletContextRequestLoggingFilter">-->
+<!--    <level value="DEBUG" />-->
+<!--  </logger>-->
+</configuration>

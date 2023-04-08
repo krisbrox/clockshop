@@ -1,6 +1,11 @@
 spring:
   datasource:
-    username: root
-    password: test
+    username: "${DB_USERNAME}"
+    password: "${DB_PASSWORD}"
     url: "${DB_URL}"
     driver-class-name: org.postgresql.Driver
+flyway:
+  user: "${DB_USERNAME}"
+  password: "${DB_PASSWORD}"
+  url: "${DB_URL}"
+  schemas: products

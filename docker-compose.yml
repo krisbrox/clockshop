@@ -22,6 +22,8 @@ services:
       - "8080:8080"
     environment:
       - DB_URL=jdbc:postgresql://db:5432/clockshop
+      - DB_USERNAME=root
+      - DB_PASSWORD=test
     networks:
       - clockshop-network
 
