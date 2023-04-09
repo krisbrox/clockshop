@@ -1,4 +1,4 @@
-package no.brox.clockshop;
+package no.brox.clockshop.products;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ public record Discount(
     Integer productId,
     Integer numberOfUnits,
     Integer price
-) {
+) implements Comparable<Discount> {
 
   public static class DiscountMapper implements RowMapper<Discount> {
 
@@ -25,5 +25,13 @@ public record Discount(
           rs.getInt("price")
       );
     }
+  }
+
+  @Override
+  public int compareTo(Discount o) {
+    Integer thisDiscounted = price / numberOfUnits;
+    Integer thatDiscounted = o.price / o.numberOfUnits;
+
+    return thisDiscounted.compareTo(thatDiscounted);
   }
 }

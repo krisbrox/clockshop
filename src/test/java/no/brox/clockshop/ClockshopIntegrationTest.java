@@ -102,11 +102,7 @@ class ClockshopIntegrationTest {
   public void testMultiItemCheckout() {
     resetDb();
     productIds = new ArrayList<>();
-    productIds.add("001");
-    productIds.add("002");
-    productIds.add("001");
-    productIds.add("004");
-    productIds.add("003");
+    productIds.addAll(List.of("001", "002", "001", "004", "003"));
 
     HttpEntity<List<String>> request = new HttpEntity<>(
         productIds,
@@ -118,7 +114,25 @@ class ClockshopIntegrationTest {
         request,
         Integer.class
     );
-    assertThat(response).isEqualTo(100);
+    assertThat(response).isEqualTo(360);
+  }
+
+  @Test
+  public void testDiscountOptimization() {
+    resetDb();
+    ArrayList<Integer> productIdsInt = new ArrayList<>(List.of(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2));
+
+    HttpEntity<List<Integer>> request = new HttpEntity<>(
+        productIdsInt,
+        new HttpHeaders()
+    );
+
+    Integer response = restTemplate.postForObject(
+        "http://localhost:" + randomServerPort + "/checkout",
+        request,
+        Integer.class
+    );
+    assertThat(response).isEqualTo(350 + 120 * 2 + 80);
   }
 
   private void resetDb() {
@@ -140,7 +154,8 @@ class ClockshopIntegrationTest {
            insert into multi_item_discount (product_id, num_units, price)
            values
             (1, 3, 200),
-            (2, 2, 120)
+            (2, 2, 120),
+            (2, 7, 350)
           """.trim();
       return handle.createUpdate(sql).execute();
     });

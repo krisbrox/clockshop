@@ -1,7 +1,6 @@
 package no.brox.clockshop.products;
 
 import java.util.Map;
-import no.brox.clockshop.Discount;
 import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
 import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;

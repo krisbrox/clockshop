@@ -1,8 +1,8 @@
 package no.brox.clockshop.products;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,22 +15,32 @@ public class ProductService {
   }
 
   Integer checkout(List<Integer> requestedProducts) {
-
-    Set<Product> products = requestedProducts
+    return requestedProducts
         .stream()
         .distinct()
         .map(productDao::getDiscountedProduct)
-        .collect(Collectors.toSet());
-
-    Integer sum = products
-        .stream()
-        .map(p -> p.unitPrice())
-        .reduce(0, (acc, p) -> acc + p);
-
-    return sum;
+        .map(p -> price(p, Collections.frequency(requestedProducts, p.id())))
+        .reduce(0, Integer::sum);
   }
 
-  Integer addProductPrice(Product product, Integer acc) {
-    return acc + product.unitPrice();
+  Integer price(Product product, Integer count) {
+    ArrayList<Discount> discounts = new ArrayList<>(product.discounts());
+    discounts.sort(Discount::compareTo);
+
+    var sum = 0;
+    var num = count;
+    int times;
+
+    for (int i = 0; i < product.discounts().size(); i++) {
+      var discount = discounts.get(i);
+      times = num / discount.numberOfUnits();
+
+      if (times > 0) {
+        sum += times * discount.price();
+        num -= times * discount.numberOfUnits();
+      }
+    }
+    sum += num * product.unitPrice();
+    return sum;
   }
 }
