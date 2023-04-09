@@ -1,20 +1,18 @@
-package no.brox.clockshop;
+package no.brox.clockshop.products;
 
 import java.util.List;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ClockShopController {
+public class ProductController {
+  private final ProductService productService;
 
-  @GetMapping("/")
-  public String index() {
-    return "Greetings from Spring Boot! Feel the steel-toed boot of spring pressing down on your neck\n";
+  public ProductController(ProductService productService) {
+    this.productService = productService;
   }
 
   @PostMapping(
@@ -23,8 +21,8 @@ public class ClockShopController {
 			produces = MediaType.APPLICATION_JSON_VALUE
 	)
   public ResponseEntity<Integer> checkout(
-		@RequestBody List<String> ids
+		@RequestBody List<Integer> ids
   ) {
-    return new ResponseEntity<>(1, HttpStatus.OK);
+    return ResponseEntity.ok(productService.checkout(ids));
   }
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,14 @@ class ClockshopIntegrationTest {
   @Autowired
   private TestRestTemplate restTemplate;
 
+  @Autowired
+  private Jdbi jdbi;
+
   @LocalServerPort
   int randomServerPort;
 
   static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
+      .withDatabaseName("clockshop")
       .withUsername("root")
       .withPassword("test");
 
@@ -60,7 +65,23 @@ class ClockshopIntegrationTest {
   }
 
   @Test
-  public void testCheckout() {
+  public void emptyShoppingCartIsFree() {
+    HttpEntity<List<String>> request = new HttpEntity<>(
+        new ArrayList<>(),
+        new HttpHeaders()
+    );
+
+    Integer response = restTemplate.postForObject(
+        "http://localhost:" + randomServerPort + "/checkout",
+        request,
+        Integer.class
+    );
+    assertThat(response).isEqualTo(0);
+  }
+
+  @Test
+  public void testSingleItemCheckout() {
+    resetDb();
     productIds = new ArrayList<>();
     productIds.add("001");
 
@@ -74,6 +95,54 @@ class ClockshopIntegrationTest {
         request,
         Integer.class
     );
-    assertThat(response).isEqualTo(1);
+    assertThat(response).isEqualTo(100);
+  }
+
+  @Test
+  public void testMultiItemCheckout() {
+    resetDb();
+    productIds = new ArrayList<>();
+    productIds.add("001");
+    productIds.add("002");
+    productIds.add("001");
+    productIds.add("004");
+    productIds.add("003");
+
+    HttpEntity<List<String>> request = new HttpEntity<>(
+        productIds,
+        new HttpHeaders()
+    );
+
+    Integer response = restTemplate.postForObject(
+        "http://localhost:" + randomServerPort + "/checkout",
+        request,
+        Integer.class
+    );
+    assertThat(response).isEqualTo(100);
+  }
+
+  private void resetDb() {
+    jdbi.withHandle(handle -> handle.createUpdate("truncate table multi_item_discount").execute());
+    jdbi.withHandle(handle -> handle.createUpdate("truncate table products cascade").execute());
+    jdbi.withHandle(handle -> {
+      String sql = """
+           insert into products (id, name, unit_price)
+           values
+            (1, 'Rolex', 100),
+            (2, 'Michael Kors', 80),
+            (3, 'Swatch', 50),
+            (4, 'Casio', 30)
+          """.trim();
+      return handle.createUpdate(sql).execute();
+    });
+    jdbi.withHandle(handle -> {
+      String sql = """
+           insert into multi_item_discount (product_id, num_units, price)
+           values
+            (1, 3, 200),
+            (2, 2, 120)
+          """.trim();
+      return handle.createUpdate(sql).execute();
+    });
   }
 }

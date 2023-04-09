@@ -3,9 +3,11 @@ package no.brox.clockshop;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.List;
 import javax.sql.DataSource;
+import no.brox.clockshop.products.ProductDao;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +35,14 @@ public class JdbiConfiguration {
     dataSource.setUsername(dataSourceUsername);
     dataSource.setPassword(dataSourcePassword);
     dataSource.setDriverClassName(dataSourceDriverClassName);
+    dataSource.setSchema("main");
 
     return dataSource;
+  }
+
+  @Bean
+  public SqlObjectPlugin sqlObjectPlugin() {
+    return new SqlObjectPlugin();
   }
 
   @Bean
@@ -44,5 +52,10 @@ public class JdbiConfiguration {
     jdbiPlugins.forEach(jdbi::installPlugin);
     rowMappers.forEach(jdbi::registerRowMapper);
     return jdbi;
+  }
+
+  @Bean
+  public ProductDao productDao(Jdbi jdbi) {
+    return jdbi.onDemand(ProductDao.class);
   }
 }

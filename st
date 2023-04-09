@@ -1,1 +1,0 @@
-{"timestamp":"2023-04-08T12:08:01.375+00:00","status":405,"error":"Method Not Allowed","path":"/checkout"}

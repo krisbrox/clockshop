@@ -1,11 +1,7 @@
-create schema main;
-
--- set search_path to main;
-
 create table products (
     id bigserial primary key,
     name text unique not null,
-    full_price integer not null
+    unit_price integer not null
 );
 
 create table multi_item_discount (
