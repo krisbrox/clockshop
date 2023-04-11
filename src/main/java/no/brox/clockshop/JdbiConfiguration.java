@@ -4,11 +4,13 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.util.List;
 import javax.sql.DataSource;
 import no.brox.clockshop.products.ProductDao;
+import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.spi.JdbiPlugin;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
@@ -57,5 +59,10 @@ public class JdbiConfiguration {
   @Bean
   public ProductDao productDao(Jdbi jdbi) {
     return jdbi.onDemand(ProductDao.class);
+  }
+
+  @Bean
+  public FlywayMigrationStrategy flywayMigrationStrategy() {
+    return Flyway::migrate;
   }
 }

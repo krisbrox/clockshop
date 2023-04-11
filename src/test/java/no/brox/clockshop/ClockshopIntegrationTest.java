@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import no.brox.clockshop.products.ProductController.CheckoutDto;
+import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Jdbi;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -22,8 +26,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = WebEnvironment.RANDOM_PORT,
+    properties = "spring.flyway.clean-disabled=false"
+)
 @Testcontainers
+@ActiveProfiles("test")
 class ClockshopIntegrationTest {
 
   @Autowired
@@ -37,8 +45,8 @@ class ClockshopIntegrationTest {
 
   static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15.2")
       .withDatabaseName("clockshop")
-      .withUsername("root")
-      .withPassword("test");
+      .withUsername("testuser")
+      .withPassword("testpassword");
 
   @DynamicPropertySource
   static void registerTestProperties(DynamicPropertyRegistry registry) {
@@ -65,23 +73,22 @@ class ClockshopIntegrationTest {
   }
 
   @Test
-  public void emptyShoppingCartIsFree() {
+  public void testEmptyCheckout() {
     HttpEntity<List<String>> request = new HttpEntity<>(
         new ArrayList<>(),
         new HttpHeaders()
     );
 
-    Integer response = restTemplate.postForObject(
+    CheckoutDto response = restTemplate.postForObject(
         "http://localhost:" + randomServerPort + "/checkout",
         request,
-        Integer.class
+        CheckoutDto.class
     );
-    assertThat(response).isEqualTo(0);
+    assertThat(response.price()).isEqualTo(0);
   }
 
   @Test
   public void testSingleItemCheckout() {
-    resetDb();
     productIds = new ArrayList<>();
     productIds.add("001");
 
@@ -90,17 +97,16 @@ class ClockshopIntegrationTest {
         new HttpHeaders()
     );
 
-    Integer response = restTemplate.postForObject(
+    CheckoutDto response = restTemplate.postForObject(
         "http://localhost:" + randomServerPort + "/checkout",
         request,
-        Integer.class
+        CheckoutDto.class
     );
-    assertThat(response).isEqualTo(100);
+    assertThat(response.price()).isEqualTo(100);
   }
 
   @Test
   public void testMultiItemCheckout() {
-    resetDb();
     productIds = new ArrayList<>();
     productIds.addAll(List.of("001", "002", "001", "004", "003"));
 
@@ -109,17 +115,21 @@ class ClockshopIntegrationTest {
         new HttpHeaders()
     );
 
-    Integer response = restTemplate.postForObject(
+    CheckoutDto response = restTemplate.postForObject(
         "http://localhost:" + randomServerPort + "/checkout",
         request,
-        Integer.class
+        CheckoutDto.class
     );
-    assertThat(response).isEqualTo(360);
+    assertThat(response.price()).isEqualTo(360);
   }
 
   @Test
   public void testDiscountOptimization() {
-    resetDb();
+    jdbi.withHandle(handle -> {
+      String sql = "insert into multi_unit_discount (product_id, num_units, price) values (2, 7, 350)";
+      return handle.createUpdate(sql).execute();
+    });
+
     ArrayList<Integer> productIdsInt = new ArrayList<>(List.of(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2));
 
     HttpEntity<List<Integer>> request = new HttpEntity<>(
@@ -127,37 +137,17 @@ class ClockshopIntegrationTest {
         new HttpHeaders()
     );
 
-    Integer response = restTemplate.postForObject(
+    CheckoutDto response = restTemplate.postForObject(
         "http://localhost:" + randomServerPort + "/checkout",
         request,
-        Integer.class
+        CheckoutDto.class
     );
-    assertThat(response).isEqualTo(350 + 120 * 2 + 80);
+    assertThat(response.price()).isEqualTo(350 + 120 * 2 + 80);
   }
 
-  private void resetDb() {
-    jdbi.withHandle(handle -> handle.createUpdate("truncate table multi_item_discount").execute());
-    jdbi.withHandle(handle -> handle.createUpdate("truncate table products cascade").execute());
-    jdbi.withHandle(handle -> {
-      String sql = """
-           insert into products (id, name, unit_price)
-           values
-            (1, 'Rolex', 100),
-            (2, 'Michael Kors', 80),
-            (3, 'Swatch', 50),
-            (4, 'Casio', 30)
-          """.trim();
-      return handle.createUpdate(sql).execute();
-    });
-    jdbi.withHandle(handle -> {
-      String sql = """
-           insert into multi_item_discount (product_id, num_units, price)
-           values
-            (1, 3, 200),
-            (2, 2, 120),
-            (2, 7, 350)
-          """.trim();
-      return handle.createUpdate(sql).execute();
-    });
+  @BeforeEach
+  void resetDb(@Autowired Flyway flyway) {
+    flyway.clean();
+    flyway.migrate();
   }
 }

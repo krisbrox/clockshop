@@ -11,7 +11,7 @@ import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 public interface ProductDao {
 
   @SqlQuery("SELECT p.id, p.name, p.unit_price, d.product_id, d.num_units, d.price"
-            + " FROM products p LEFT OUTER JOIN multi_item_discount d on p.id = d.product_id"
+            + " FROM products p LEFT OUTER JOIN multi_unit_discount d on p.id = d.product_id"
             + " where p.id = :product_id")
   @RegisterRowMapper(value = Product.ProductMapper.class)
   @RegisterRowMapper(value = Discount.DiscountMapper.class)

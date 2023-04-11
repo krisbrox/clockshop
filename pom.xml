@@ -17,36 +17,24 @@
 		<java.version>17.0.6</java.version>
 		<maven.compiler.source>17</maven.compiler.source>
 		<maven.compiler.target>17</maven.compiler.target>
+		<spring-boot.version>3.0.5</spring-boot.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<version>3.0.5</version>
+			<version>${spring-boot.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+			<version>${spring-boot.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
 			<version>9.16.0</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-jdbc</artifactId>
-			<version>3.0.5</version>
-		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.jdbi</groupId>-->
-<!--			<artifactId>jdbi3-spring4</artifactId>-->
-<!--			<version>3.19.0</version>-->
-<!--		</dependency>-->
 		<dependency>
 			<groupId>org.jdbi</groupId>
 			<artifactId>jdbi3-sqlobject</artifactId>
@@ -90,7 +78,13 @@
 			<version>2.5</version>
 			<scope>test</scope>
 		</dependency>
-  </dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<version>${spring-boot.version}</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>

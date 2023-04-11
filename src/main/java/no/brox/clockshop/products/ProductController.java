@@ -20,9 +20,14 @@ public class ProductController {
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE
 	)
-  public ResponseEntity<Integer> checkout(
+  public ResponseEntity<CheckoutDto> checkout(
 		@RequestBody List<Integer> ids
   ) {
-    return ResponseEntity.ok(productService.checkout(ids));
+    Integer price = productService.checkout(ids);
+    return ResponseEntity.ok(new CheckoutDto(price));
   }
+
+  public record CheckoutDto(
+      Integer price
+  ) {}
 }
