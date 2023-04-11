@@ -14,10 +14,8 @@ public class ProductCache {
 
   private final LoadingCache<String, Map<Integer, Product>> products;
   private final String PRODUCT_CACHE_KEY = "PRODUCT_CACHE_KEY";
-  private final ProductDao productDao;
 
   public ProductCache(ProductDao productDao) {
-    this.productDao = productDao;
     this.products = Caffeine
         .newBuilder()
         .maximumSize(10_000)
