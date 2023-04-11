@@ -1,7 +1,7 @@
 README
 ---
 
-This repository contains a spring boot web server application implementing the api for a watchmaker's shop.
+This repository contains a Spring Boot web server application implementing the api for a watchmaker's shop.
 Uses maven to manage dependencies and building, and docker for integration test dependencies as well as 
 for running the app and dependencies in a local test environment.
 
@@ -40,6 +40,6 @@ quirks/details of Spring/Spring Boot's dependency management structure are unfor
 not properly understood by the developer, and as a result there are certainly improvements to 
 be made, especially in the integration test configuration.
 
-The app is of very simple, but is intended to be a reasonable starting point for a 
+The app is fairly simple, but is intended to be a reasonable starting point for a 
 hypothetical real application. Most features of a real web server api should be present, and
 extending the service with more functionality should not present much difficulty.
