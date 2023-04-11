@@ -5,19 +5,10 @@ import java.util.Map;
 import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
 import org.jdbi.v3.core.result.RowView;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
-import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.UseRowReducer;
 
 public interface ProductDao {
-
-  @SqlQuery("SELECT p.id, p.name, p.unit_price, d.product_id, d.num_units, d.price"
-            + " FROM products p LEFT OUTER JOIN multi_unit_discount d on p.id = d.product_id"
-            + " where p.id = :product_id")
-  @RegisterRowMapper(value = Product.ProductMapper.class)
-  @RegisterRowMapper(value = Discount.DiscountMapper.class)
-  @UseRowReducer(ProductRowReducer.class)
-  Product getDiscountedProduct(@Bind("product_id") Integer productId);
 
   @SqlQuery("SELECT p.id, p.name, p.unit_price, d.product_id, d.num_units, d.price"
             + " FROM products p LEFT OUTER JOIN multi_unit_discount d on p.id = d.product_id")

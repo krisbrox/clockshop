@@ -12,9 +12,9 @@ public class ProductController {
   private final ProductService productService;
   private final ProductCache productCache;
 
-  public ProductController(ProductService productService, ProductCache cache) {
+  public ProductController(ProductService productService, ProductCache productCache) {
     this.productService = productService;
-    this.productCache = cache;
+    this.productCache = productCache;
   }
 
   @PostMapping(

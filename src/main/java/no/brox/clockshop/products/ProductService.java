@@ -11,7 +11,6 @@ public class ProductService {
 
   public ProductService(ProductCache productCache) {
     this.productCache = productCache;
-
   }
 
   Integer checkout(List<Integer> requestedProducts) {

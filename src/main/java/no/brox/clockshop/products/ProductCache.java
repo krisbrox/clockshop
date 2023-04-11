@@ -16,7 +16,7 @@ public class ProductCache {
   private final String PRODUCT_CACHE_KEY = "PRODUCT_CACHE_KEY";
 
   public ProductCache(ProductDao productDao) {
-    this.products = Caffeine
+    products = Caffeine
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterWrite(Duration.ofMinutes(5))

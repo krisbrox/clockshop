@@ -29,7 +29,7 @@ public record Discount(
 
   @Override
   public int compareTo(Discount o) {
-    Integer thisDiscount = price / numberOfUnits;
+    Integer thisDiscount = this.price / this.numberOfUnits;
     Integer thatDiscount = o.price / o.numberOfUnits;
 
     return thisDiscount.compareTo(thatDiscount);
