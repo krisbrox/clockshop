@@ -8,9 +8,11 @@ for running the app and dependencies in a local test environment.
 The dockerfile specifies an arm-compliant base image, which might have to be swapped out
 to run on another architecture (this has not been tested).
 
-Run the tests using ````mvn clean verify````, or import to your IDE of choice (this author used JetBrains Intellij IDEA)
+Run the tests using ````mvn clean test````, or import to your IDE of choice (this author used JetBrains Intellij IDEA)
 
-To run the application along with required dependencies (the postgres db), run ````docker compose up````. Requires port 8080 and 5432 (modify docker-compose.yml if these ports are not available)
+To run the application along with required dependencies (the postgres db), first run
+````mvn clean package```` and subsequently ````docker compose up````. 
+Requires port 8080 and 5432 by default (modify docker-compose.yml if these ports are not available)
 
 One endpoint is implemented, ```/checkout```, which accepts a json-formatted list of product ids and returns the total price (applying any applicable discounts).
 Example request: 
