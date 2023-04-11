@@ -7,17 +7,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductService {
 
-  private final ProductDao productDao;
+  private final ProductCache productCache;
 
-  public ProductService(ProductDao productDao) {
-    this.productDao = productDao;
+  public ProductService(ProductCache productCache) {
+    this.productCache = productCache;
+
   }
 
   Integer checkout(List<Integer> requestedProducts) {
     return requestedProducts
         .stream()
         .distinct()
-        .map(productDao::getDiscountedProduct)
+        .map(productCache::getProduct)
         .map(p -> price(p, Collections.frequency(requestedProducts, p.id())))
         .reduce(0, Integer::sum);
   }

@@ -1,5 +1,6 @@
 package no.brox.clockshop.products;
 
+import java.util.List;
 import java.util.Map;
 import org.jdbi.v3.core.result.LinkedHashMapRowReducer;
 import org.jdbi.v3.core.result.RowView;
@@ -17,6 +18,13 @@ public interface ProductDao {
   @RegisterRowMapper(value = Discount.DiscountMapper.class)
   @UseRowReducer(ProductRowReducer.class)
   Product getDiscountedProduct(@Bind("product_id") Integer productId);
+
+  @SqlQuery("SELECT p.id, p.name, p.unit_price, d.product_id, d.num_units, d.price"
+            + " FROM products p LEFT OUTER JOIN multi_unit_discount d on p.id = d.product_id")
+  @RegisterRowMapper(value = Product.ProductMapper.class)
+  @RegisterRowMapper(value = Discount.DiscountMapper.class)
+  @UseRowReducer(ProductRowReducer.class)
+  List<Product> getProducts();
 
   class ProductRowReducer implements LinkedHashMapRowReducer<Integer, Product> {
     @Override

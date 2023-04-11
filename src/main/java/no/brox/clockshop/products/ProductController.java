@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ProductController {
   private final ProductService productService;
+  private final ProductCache productCache;
 
-  public ProductController(ProductService productService) {
+  public ProductController(ProductService productService, ProductCache cache) {
     this.productService = productService;
+    this.productCache = cache;
   }
 
   @PostMapping(
@@ -23,6 +25,10 @@ public class ProductController {
   public ResponseEntity<CheckoutDto> checkout(
 		@RequestBody List<Integer> ids
   ) {
+    if (!productCache.availableProducts().containsAll(ids)) {
+      return ResponseEntity.badRequest().build();
+    }
+
     Integer price = productService.checkout(ids);
     return ResponseEntity.ok(new CheckoutDto(price));
   }

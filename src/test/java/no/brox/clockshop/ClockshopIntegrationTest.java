@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import no.brox.clockshop.products.ProductCache;
 import no.brox.clockshop.products.ProductController.CheckoutDto;
 import org.flywaydb.core.Flyway;
 import org.jdbi.v3.core.Jdbi;
@@ -39,6 +41,9 @@ class ClockshopIntegrationTest {
 
   @Autowired
   private Jdbi jdbi;
+
+  @Autowired
+  private ProductCache productCache;
 
   @LocalServerPort
   int randomServerPort;
@@ -124,16 +129,15 @@ class ClockshopIntegrationTest {
   }
 
   @Test
-  public void testDiscountOptimization() {
+  public void testDiscountOptimization() throws ExecutionException, InterruptedException {
     jdbi.withHandle(handle -> {
       String sql = "insert into multi_unit_discount (product_id, num_units, price) values (2, 7, 350)";
       return handle.createUpdate(sql).execute();
     });
-
-    ArrayList<Integer> productIdsInt = new ArrayList<>(List.of(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2));
+    productCache.forceRefreshProducts();
 
     HttpEntity<List<Integer>> request = new HttpEntity<>(
-        productIdsInt,
+        new ArrayList<>(List.of(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)),
         new HttpHeaders()
     );
 
